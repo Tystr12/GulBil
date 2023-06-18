@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "868414895631",
+    "project_id": "my-gul-bil",
+    "storage_bucket": "my-gul-bil.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868414895631:android:cef333e838f573a973557a",
+        "android_client_info": {
+          "package_name": "com.gulbil"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "868414895631-6l8u4tdkn9bc7kg38m919oon51kflkg9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.gulbil",
+            "certificate_hash": "ce4d7d5c63d563e8e77de782c07f37ef667134c1"
+          }
+        },
+        {
+          "client_id": "868414895631-p1ad9scp5k3nu11rm41k69eqlo49sedd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsNCC3fkjt1w-vAB3ReHnmN9o24R8Jfds"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868414895631-p1ad9scp5k3nu11rm41k69eqlo49sedd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
