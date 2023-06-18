@@ -48,7 +48,7 @@ import {
 /** This is a react native component, where you can pass a title and children.     */
 const Stack = createStackNavigator();
 
-function App(): JSX.Element {
+function HomeScreen({navigation}): JSX.Element {
   const [amountOfPresses, setPresses] = useState(0);
   const [user, setUser] = useState(false);
   const userMap = useMemo(() => {
@@ -135,28 +135,19 @@ function App(): JSX.Element {
     const hour = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1');
     return date + ' ' + hour;
   };
-  const handleMenuPress = () => {
-    // Handle menu button press
-    console.log('Menu button pressed');
+  const handleLeaderBoardScreenPress = () => {
+    console.log('LeaderBoard button pressed');
+    navigation.navigate('LeaderBoard');
   };
 
   return (
-    <NavigationContainer>
-      <Header
-        backgroundColor="yellow"
-        leftComponent={
-          <TouchableOpacity onPress={handleMenuPress}>
-            <Icon name="table" color="#000" size={24} />
-          </TouchableOpacity>
-        }
-        centerComponent={{
-          text: 'GulBil',
-          style: {color: '#000', fontSize: 20},
-        }}
-        rightComponent={{icon: 'home', color: '#000'}}
-      />
+    <>
       <View style={styles.buttonContainer}>
         <Button onPress={changeUser} title="Change User" />
+        <Button
+          onPress={() => navigation.navigate('LeaderBoard')}
+          title="LeaderBoard"
+        />
         <Text style={styles.text}>
           You are logged in as {userMap.get(user)}
         </Text>
@@ -167,7 +158,7 @@ function App(): JSX.Element {
         <Text style={styles.text}>All time:{amountOfPresses}</Text>
         <Text style={styles.text}>Last GulBil: {getNewestPress()}</Text>
       </View>
-    </NavigationContainer>
+    </>
   );
 }
 
@@ -176,6 +167,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'black',
   },
   button: {
     borderRadius: 30,
@@ -186,5 +178,43 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
 });
+
+function LeaderBoard({navigation}): JSX.Element {
+  return (
+    <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+      <Text>LeaderBoard</Text>
+      <Button
+        title="Go to LeaderBoard... again"
+        onPress={() => navigation.navigate('LeaderBoard')}
+      />
+    </View>
+  );
+}
+
+function App({}): JSX.Element {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="M"
+          component={HomeScreen}
+          options={{
+            headerStyle: {backgroundColor: 'black'},
+            headerTintColor: '#000',
+            headerTitleStyle: {fontSize: 0},
+          }}
+        />
+        <Stack.Screen
+          name="LeaderBoard"
+          component={LeaderBoard}
+          options={{
+            headerStyle: {backgroundColor: 'yellow'},
+            headerTintColor: '#000',
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
 
 export default App;
