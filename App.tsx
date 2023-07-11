@@ -21,6 +21,7 @@ import {
   View,
   TouchableOpacity,
   Button,
+  Image,
 } from 'react-native';
 
 import {useState, useEffect, useCallback, useMemo} from 'react';
@@ -135,10 +136,6 @@ function HomeScreen({navigation}): JSX.Element {
     const hour = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1');
     return date + ' ' + hour;
   };
-  const handleLeaderBoardScreenPress = () => {
-    console.log('LeaderBoard button pressed');
-    navigation.navigate('LeaderBoard');
-  };
 
   return (
     <>
@@ -152,7 +149,10 @@ function HomeScreen({navigation}): JSX.Element {
           You are logged in as {userMap.get(user)}
         </Text>
         <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
-          <Icon name="circle" size={180} color="yellow" style={styles.button} />
+          <Image
+            source={require('./assets/images.jpg')}
+            style={styles.buttonImage}
+          />
         </TouchableOpacity>
         <Text style={styles.text}>Today: {getPressesFromToday().length}</Text>
         <Text style={styles.text}>All time:{amountOfPresses}</Text>
@@ -163,6 +163,11 @@ function HomeScreen({navigation}): JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  buttonImage: {
+    width: 180,
+    height: 180,
+    borderRadius: 60,
+  },
   buttonContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -187,6 +192,7 @@ function LeaderBoard({navigation}): JSX.Element {
         title="Go to LeaderBoard... again"
         onPress={() => navigation.navigate('LeaderBoard')}
       />
+      <Button title="Home" onPress={() => navigation.navigate('GulBil')} />
     </View>
   );
 }
@@ -196,12 +202,11 @@ function App({}): JSX.Element {
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen
-          name="M"
+          name="GulBil"
           component={HomeScreen}
           options={{
-            headerStyle: {backgroundColor: 'black'},
+            headerStyle: {backgroundColor: 'yellow'},
             headerTintColor: '#000',
-            headerTitleStyle: {fontSize: 0},
           }}
         />
         <Stack.Screen
