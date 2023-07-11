@@ -102,7 +102,7 @@ function HomeScreen({navigation}): JSX.Element {
         await setDoc(docRef, updatedData, {merge: true});
         setTimestamps(updatedBilerArray);
         sortDates(); // Sort the timestamps into dates
-        setPresses(amountOfPresses + 1);
+        setPresses(amountOfPresses + 1); // add to amount of presses. for git
         console.log('Timestamp added to the Live document.');
       }
     } catch (e) {
@@ -139,48 +139,87 @@ function HomeScreen({navigation}): JSX.Element {
 
   return (
     <>
-      <View style={styles.buttonContainer}>
-        <Button onPress={changeUser} title="Change User" />
-        <Button
-          onPress={() => navigation.navigate('LeaderBoard')}
-          title="LeaderBoard"
-        />
+      <View style={styles.container}>
         <Text style={styles.text}>
-          You are logged in as {userMap.get(user)}
+          You are logged in as
+          <Text style={styles.highlight}> {userMap.get(user)}</Text>
         </Text>
-        <TouchableOpacity onPress={handleButtonPress} style={styles.button}>
-          <Image
-            source={require('./assets/images.jpg')}
-            style={styles.buttonImage}
-          />
+        <TouchableOpacity
+          onPress={handleButtonPress}
+          style={styles.gulBilButton}>
+          <Image source={require('./assets/images.jpg')} />
         </TouchableOpacity>
-        <Text style={styles.text}>Today: {getPressesFromToday().length}</Text>
-        <Text style={styles.text}>All time:{amountOfPresses}</Text>
-        <Text style={styles.text}>Last GulBil: {getNewestPress()}</Text>
+        <Text style={styles.text}>
+          Today:
+          <Text style={styles.highlight}> {getPressesFromToday().length}</Text>
+        </Text>
+        <Text style={styles.text}>
+          All time: <Text style={styles.highlight}> {amountOfPresses}</Text>
+        </Text>
+        <Text style={styles.text}>
+          Last GulBil: <Text style={styles.highlight}>{getNewestPress()}</Text>
+        </Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={changeUser} style={styles.button}>
+            <Text style={styles.buttonText}>Change User</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('LeaderBoard')}
+            style={styles.button}>
+            <Text style={styles.buttonText}>LeaderBoard</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  buttonImage: {
-    width: 180,
-    height: 180,
-    borderRadius: 60,
-  },
   buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 4,
+    marginBottom: 16,
+  },
+  container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    padding: 60,
+    position: 'relative',
     backgroundColor: 'black',
   },
+  gulBilButton: {
+    backgroundColor: 'yellow',
+    padding: 8,
+    borderRadius: 8,
+  },
   button: {
-    borderRadius: 30,
-    padding: 10,
+    backgroundColor: 'yellow',
+    padding: 8,
+    borderRadius: 8,
+  },
+  bottomLeftButton: {
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+  },
+  bottomRightButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 16,
+  },
+  buttonText: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   text: {
     color: 'yellow',
     fontSize: 20,
+  },
+  highlight: {
+    color: '#42f2f5',
+    fontSize: 30,
   },
 });
 
