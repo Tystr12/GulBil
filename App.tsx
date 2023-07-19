@@ -177,12 +177,47 @@ function HomeScreen({navigation}): JSX.Element {
 
 function LeaderBoard({navigation}): JSX.Element {
   const [livePresses, setLivePresses] = useState(0);
-  const [liveTimestamps, setLiveTimestamps] = useState<String[]>([]);
   const [tyPresses, setTyPresses] = useState(0);
   const [tyTimestamps, setTyTimestamps] = useState<String[]>([]);
-  const [dates, setDates] = useState<Date[]>([]);
+  const [tyDates, setTyDates] = useState<Date[]>([]);
+  const [liveTimestamps, setLiveTimestamps] = useState<String[]>([]);
+  const [liveDates, setLiveDates] = useState<Date[]>([]);
+  const [tyToday, setTyToday] = useState(0);
+  const [liveToday, setLiveToday] = useState(0);
+  const [leaderBoardToday, setLeaderBoardToday] = useState(true);
+
+  const switchFilter = () => {
+    console.log('Switch Filter');
+    if (leaderBoardToday === true) {
+      setLeaderBoardToday(false);
+    } else {
+      setLeaderBoardToday(true);
+    }
+  };
+
+  const sortDates = useCallback(() => {
+    const sortedDatesTy = tyTimestamps.map(
+      timestamp => new Date(String(timestamp)),
+    );
+    setTyDates(sortedDatesTy);
+    const sortedDatesLive = liveTimestamps.map(
+      timestamp => new Date(String(timestamp)),
+    );
+    setLiveDates(sortedDatesLive);
+  }, [tyTimestamps, liveTimestamps]);
 
   useEffect(() => {
+    const getPressesFromToday = () => {
+      const today = new Date();
+      const t = tyDates.filter(
+        date => date.toDateString() === today.toDateString(),
+      ).length;
+      const l = liveDates.filter(
+        date => date.toDateString() === today.toDateString(),
+      ).length;
+      setTyToday(t);
+      setLiveToday(l);
+    };
     const getDatabasePresses = async () => {
       const docRefLive = doc(db, 'Users', 'Live');
       const docSnapLive = await getDoc(docRefLive);
@@ -200,28 +235,61 @@ function LeaderBoard({navigation}): JSX.Element {
         setLiveTimestamps(liveTotal.map(timestamp => timestamp.toString()));
         setTyPresses(tyPresses);
         setTyTimestamps(tyTotal.map(timestamp => timestamp.toString()));
+        sortDates();
+        getPressesFromToday();
       } else {
         console.log('docSnap data was empty...');
       }
     };
 
     getDatabasePresses();
-  }, []);
+    sortDates();
+  }, [sortDates]);
 
   return (
     <View style={styles.leaderBoardContainer}>
-      <Button title="Home" onPress={() => navigation.navigate('GulBil')} />
-      <Text style={styles.text}>
-        Leader:{' '}
-        {tyPresses >= livePresses ? (
-          <Text style={styles.highlight}>Ty</Text>
-        ) : (
-          <Text style={styles.highlight}>Live</Text>
-        )}
-        <Icon name="crown-outline" size={30} color={'yellow'} />
-      </Text>
-      <Text style={styles.text}>Live: {livePresses}</Text>
-      <Text style={styles.text}>Ty: {tyPresses}</Text>
+      {leaderBoardToday ? (
+        <View>
+          <Text style={styles.highlight}>Today: </Text>
+          <Text style={styles.text}>
+            Leader:{' '}
+            {tyToday >= liveToday ? (
+              <Text style={styles.highlight}>Ty</Text>
+            ) : (
+              <Text style={styles.highlight}>Live</Text>
+            )}
+            <Icon name="crown-outline" size={30} color={'yellow'} />
+          </Text>
+          <Text style={styles.text}>
+            Live: <Text style={styles.highlight}>{liveToday}</Text>
+          </Text>
+          <Text style={styles.text}>
+            Ty: <Text style={styles.highlight}>{tyToday}</Text>
+          </Text>
+        </View>
+      ) : (
+        <View>
+          <Text style={styles.highlight}>All time: </Text>
+          <Text style={styles.text}>
+            Leader:{' '}
+            {tyPresses >= livePresses ? (
+              <Text style={styles.highlight}>Ty</Text>
+            ) : (
+              <Text style={styles.highlight}>Live</Text>
+            )}
+            <Icon name="crown-outline" size={30} color={'yellow'} />
+          </Text>
+          <Text style={styles.text}>
+            Live: <Text style={styles.highlight}>{livePresses}</Text>
+          </Text>
+          <Text style={styles.text}>
+            Ty: <Text style={styles.highlight}>{tyPresses}</Text>
+          </Text>
+        </View>
+      )}
+      <TouchableOpacity onPress={switchFilter} style={styles.button}>
+        <Text style={styles.buttonText}>Switch Filter</Text>
+      </TouchableOpacity>
     </View>
   );
 }
