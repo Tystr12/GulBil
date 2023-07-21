@@ -11,22 +11,9 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-  TouchableOpacity,
-  Button,
-  Image,
-} from 'react-native';
+import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
 
 import {useState, useEffect, useCallback, useMemo} from 'react';
-import {useNavigation} from '@react-navigation/native';
-import {Header} from 'react-native-elements/dist/header/Header';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons.js';
 import {
   app,
@@ -37,15 +24,8 @@ import {
   updateDoc as updateDocument,
 } from './firebase/index.js';
 
-import {
-  DocumentData,
-  DocumentReference,
-  doc,
-  getDoc,
-  arrayUnion,
-  setDoc,
-} from 'firebase/firestore';
-import {lightColors} from '@rneui/base';
+import {doc, getDoc, setDoc} from 'firebase/firestore';
+//import {lightColors} from '@rneui/base';
 
 /** This is a react native component, where you can pass a title and children.     */
 const Stack = createStackNavigator();
@@ -161,12 +141,12 @@ function HomeScreen({navigation}): JSX.Element {
           Last GulBil: <Text style={styles.highlight}>{getNewestPress()}</Text>
         </Text>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={changeUser} style={styles.button}>
+          <TouchableOpacity onPress={changeUser} style={styles.buttonLeft}>
             <Text style={styles.buttonText}>Change User</Text>
           </TouchableOpacity>
           <TouchableOpacity
             onPress={() => navigation.navigate('LeaderBoard')}
-            style={styles.button}>
+            style={styles.buttonRight}>
             <Text style={styles.buttonText}>LeaderBoard</Text>
           </TouchableOpacity>
         </View>
@@ -258,7 +238,7 @@ function LeaderBoard({navigation}): JSX.Element {
             ) : (
               <Text style={styles.highlight}>Live</Text>
             )}
-            <Icon name="crown-outline" size={30} color={'yellow'} />
+            <Icon name="crown-outline" size={40} color={'yellow'} />
           </Text>
           <Text style={styles.text}>
             Live: <Text style={styles.highlight}>{liveToday}</Text>
@@ -277,7 +257,7 @@ function LeaderBoard({navigation}): JSX.Element {
             ) : (
               <Text style={styles.highlight}>Live</Text>
             )}
-            <Icon name="crown-outline" size={30} color={'yellow'} />
+            <Icon name="crown-outline" size={40} color={'yellow'} />
           </Text>
           <Text style={styles.text}>
             Live: <Text style={styles.highlight}>{livePresses}</Text>
@@ -287,7 +267,9 @@ function LeaderBoard({navigation}): JSX.Element {
           </Text>
         </View>
       )}
-      <TouchableOpacity onPress={switchFilter} style={styles.button}>
+      <TouchableOpacity
+        onPress={switchFilter}
+        style={styles.switchFilterButton}>
         <Text style={styles.buttonText}>Switch Filter</Text>
       </TouchableOpacity>
     </View>
@@ -347,18 +329,36 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
   },
-  button: {
+  switchFilterButton: {
     backgroundColor: 'yellow',
     padding: 6,
     borderRadius: 8,
+    //marginLeft: 128,
+    marginTop: 20,
+    alignSelf: 'center',
+  },
+  buttonLeft: {
+    backgroundColor: 'yellow',
+    padding: 6,
+    borderRadius: 8,
+    marginTop: 10,
+    marginRight: 10,
+    marginLeft: -5,
+  },
+  buttonRight: {
+    backgroundColor: 'yellow',
+    padding: 6,
+    borderRadius: 8,
+    marginTop: 10,
+    marginLeft: 16,
   },
   bottomLeftButton: {
     alignSelf: 'flex-start',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   bottomRightButton: {
     alignSelf: 'flex-end',
-    marginBottom: 16,
+    marginBottom: 12,
   },
   buttonText: {
     color: 'black',

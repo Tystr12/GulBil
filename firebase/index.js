@@ -3,7 +3,9 @@ import {initializeApp} from 'firebase/app';
 import {getFirestore, collection, addDoc, updateDoc,query,
   orderBy,
   limit,
-  onSnapshot,} from 'firebase/firestore';
+  onSnapshot,
+  initializeFirestore,
+} from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBjjg1kP4P0AZ4o2MFIWYqSM57xNgAvElQ",
@@ -13,7 +15,8 @@ const firebaseConfig = {
   storageBucket: "my-gul-bil.appspot.com",
   messagingSenderId: "868414895631",
   appId: "1:868414895631:web:da0fd58bfc32560073557a",
-  measurementId: "G-LNP5HBEYY7"
+  measurementId: "G-LNP5HBEYY7",
+  experimentalAutoDetectLongPolling: true,
 };
 
 // Initialize Firebase
