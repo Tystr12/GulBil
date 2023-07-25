@@ -11,7 +11,14 @@ import firebase from 'firebase/app';
 import 'firebase/auth';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
-import {StyleSheet, Text, View, TouchableOpacity, Image} from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+  Image,
+} from 'react-native';
 
 import {useState, useEffect, useCallback, useMemo} from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons.js';
@@ -25,12 +32,14 @@ import {
 } from './firebase/index.js';
 
 import {doc, getDoc, setDoc} from 'firebase/firestore';
+import _ from 'lodash';
 //import {lightColors} from '@rneui/base';
 
 /** This is a react native component, where you can pass a title and children.     */
 const Stack = createStackNavigator();
 
-function HomeScreen({navigation}): JSX.Element {
+const HomeScreen = React.memo(({navigation}) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [amountOfPresses, setPresses] = useState(0);
   const [user, setUser] = useState(false);
   const userMap = useMemo(() => {
@@ -39,8 +48,6 @@ function HomeScreen({navigation}): JSX.Element {
     map.set(true, 'Ty');
     return map;
   }, []);
-  userMap.set(false, 'Live');
-  userMap.set(true, 'Ty');
   const [timestamps, setTimestamps] = useState<String[]>([]);
   const [dates, setDates] = useState<Date[]>([]);
 
@@ -83,7 +90,7 @@ function HomeScreen({navigation}): JSX.Element {
         await setDoc(docRef, updatedData, {merge: true});
         setTimestamps(updatedBilerArray);
         sortDates(); // Sort the timestamps into dates
-        setPresses(amountOfPresses + 1); // add to amount of presses. for git
+        setPresses(prevPresses => prevPresses + 1); // add to amount of presses. for git
         console.log('Timestamp added to the Live document.');
       }
     } catch (e) {
@@ -100,13 +107,15 @@ function HomeScreen({navigation}): JSX.Element {
         setPresses(p);
         setTimestamps(t);
         sortDates(); // Sort the timestamps into dates
+        setIsLoading(false); // Data has been fetched, set isLoading to false
       } else {
         console.log('docSnap data was empty...');
+        setIsLoading(false); // Data has been fetched, set isLoading to false
       }
     };
     getDatabasePresses();
     sortDates();
-  }, [sortDates, user, userMap]);
+  }, [sortDates, user]);
 
   const getNewestPress = () => {
     if (dates.length === 0) {
@@ -117,6 +126,16 @@ function HomeScreen({navigation}): JSX.Element {
     const hour = data.toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, '$1');
     return date + ' ' + hour;
   };
+
+  if (isLoading) {
+    // Show the loading screen while data is being fetched
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#42f2f5" />
+        <Text style={styles.loadingText}>Loading..</Text>
+      </View>
+    );
+  }
 
   return (
     <>
@@ -153,9 +172,10 @@ function HomeScreen({navigation}): JSX.Element {
       </View>
     </>
   );
-}
+});
 
-function LeaderBoard({navigation}): JSX.Element {
+const LeaderBoard = React.memo(({navigation}) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [livePresses, setLivePresses] = useState(0);
   const [tyPresses, setTyPresses] = useState(0);
   const [tyTimestamps, setTyTimestamps] = useState<String[]>([]);
@@ -176,6 +196,7 @@ function LeaderBoard({navigation}): JSX.Element {
       setLeaderBoardToday(true);
     }
   };
+  const debouncedSwitch = _.debounce(switchFilter, 500);
 
   const sortDates = useCallback(() => {
     const sortedDatesTy = tyTimestamps.map(
@@ -189,6 +210,39 @@ function LeaderBoard({navigation}): JSX.Element {
   }, [tyTimestamps, liveTimestamps]);
 
   useEffect(() => {
+    const getDatabasePresses = async () => {
+      try {
+        const docRefLive = doc(db, 'Users', 'Live');
+        const docRefTy = doc(db, 'Users', 'Ty');
+
+        const [docSnapLive, docSnapTy] = await Promise.all([
+          getDoc(docRefLive),
+          getDoc(docRefTy),
+        ]);
+
+        if (docSnapLive.exists() && docSnapTy.exists()) {
+          const liveData = docSnapLive.data();
+          const tyData = docSnapTy.data();
+
+          setLivePresses(liveData.total || 0);
+          setLiveTimestamps(
+            liveData.biler?.map(timestamp => timestamp.toString()) || [],
+          );
+          setTyPresses(tyData.total || 0);
+          setTyTimestamps(
+            tyData.biler?.map(timestamp => timestamp.toString()) || [],
+          );
+          setIsLoading(false);
+        } else {
+          console.log('docSnap data was empty...');
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error fetching data: ', error);
+        setIsLoading(false);
+      }
+    };
+
     const getPressesFromToday = () => {
       const today = new Date();
       const t = tyDates.filter(
@@ -199,34 +253,35 @@ function LeaderBoard({navigation}): JSX.Element {
       ).length;
       setTyToday(t);
       setLiveToday(l);
-    };
-    const getDatabasePresses = async () => {
-      const docRefLive = doc(db, 'Users', 'Live');
-      const docSnapLive = await getDoc(docRefLive);
-
-      const docRefTy = doc(db, 'Users', 'Ty');
-      const docSnapTy = await getDoc(docRefTy);
-
-      if (docSnapLive.exists() && docSnapTy.exists()) {
-        const livePresses = docSnapLive.data().total;
-        const liveTotal = docSnapLive.data().biler;
-        const tyPresses = docSnapTy.data().total;
-        const tyTotal = docSnapTy.data().biler;
-
-        setLivePresses(livePresses);
-        setLiveTimestamps(liveTotal.map(timestamp => timestamp.toString()));
-        setTyPresses(tyPresses);
-        setTyTimestamps(tyTotal.map(timestamp => timestamp.toString()));
-        sortDates();
-        getPressesFromToday();
-      } else {
-        console.log('docSnap data was empty...');
-      }
+      //sortDates();
     };
 
     getDatabasePresses();
-    sortDates();
-  }, [sortDates]);
+    //sortDates();
+    getPressesFromToday();
+  }, []);
+
+  // Separate useEffect to handle sorting dates
+  useEffect(() => {
+    const sortedDatesTy = tyTimestamps.map(
+      timestamp => new Date(String(timestamp)),
+    );
+    setTyDates(sortedDatesTy);
+    const sortedDatesLive = liveTimestamps.map(
+      timestamp => new Date(String(timestamp)),
+    );
+    setLiveDates(sortedDatesLive);
+  }, [tyTimestamps, liveTimestamps]);
+
+  if (isLoading) {
+    // Show the loading screen while data is being fetched
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#42f2f5" />
+        <Text style={styles.loadingText}>Loading..</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.leaderBoardContainer}>
@@ -282,13 +337,13 @@ function LeaderBoard({navigation}): JSX.Element {
         </View>
       )}
       <TouchableOpacity
-        onPress={switchFilter}
+        onPress={debouncedSwitch}
         style={styles.switchFilterButton}>
         <Text style={styles.buttonText}>Switch Filter</Text>
       </TouchableOpacity>
     </View>
   );
-}
+});
 
 function App({}): JSX.Element {
   return (
@@ -316,6 +371,19 @@ function App({}): JSX.Element {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    position: 'relative',
+    padding: 140,
+    backgroundColor: 'yellow',
+  },
+  loadingText: {
+    color: 'black',
+    fontSize: 20,
+    padding: -10,
+  },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
