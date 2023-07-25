@@ -165,6 +165,8 @@ function LeaderBoard({navigation}): JSX.Element {
   const [tyToday, setTyToday] = useState(0);
   const [liveToday, setLiveToday] = useState(0);
   const [leaderBoardToday, setLeaderBoardToday] = useState(true);
+  const totalPressesToday = tyToday + liveToday;
+  const totalPressesAllTimeAreEqual = tyPresses === livePresses;
 
   const switchFilter = () => {
     console.log('Switch Filter');
@@ -233,12 +235,18 @@ function LeaderBoard({navigation}): JSX.Element {
           <Text style={styles.highlight}>Today: </Text>
           <Text style={styles.text}>
             Leader:{' '}
-            {tyToday >= liveToday ? (
-              <Text style={styles.highlight}>Ty</Text>
+            {totalPressesToday === 0 ? (
+              <Text style={styles.highlight}>No one</Text>
             ) : (
-              <Text style={styles.highlight}>Live</Text>
+              <>
+                {tyToday > liveToday ? (
+                  <Text style={styles.highlight}>Ty</Text>
+                ) : (
+                  <Text style={styles.highlight}>Live</Text>
+                )}
+                <Icon name="crown-outline" size={40} color={'yellow'} />
+              </>
             )}
-            <Icon name="crown-outline" size={40} color={'yellow'} />
           </Text>
           <Text style={styles.text}>
             Live: <Text style={styles.highlight}>{liveToday}</Text>
@@ -252,12 +260,18 @@ function LeaderBoard({navigation}): JSX.Element {
           <Text style={styles.highlight}>All time: </Text>
           <Text style={styles.text}>
             Leader:{' '}
-            {tyPresses >= livePresses ? (
-              <Text style={styles.highlight}>Ty</Text>
+            {totalPressesAllTimeAreEqual ? (
+              <Text style={styles.highlight}>No one</Text>
             ) : (
-              <Text style={styles.highlight}>Live</Text>
+              <>
+                {tyPresses > livePresses ? (
+                  <Text style={styles.highlight}>Ty</Text>
+                ) : (
+                  <Text style={styles.highlight}>Live</Text>
+                )}
+                <Icon name="crown-outline" size={40} color={'yellow'} />
+              </>
             )}
-            <Icon name="crown-outline" size={40} color={'yellow'} />
           </Text>
           <Text style={styles.text}>
             Live: <Text style={styles.highlight}>{livePresses}</Text>
