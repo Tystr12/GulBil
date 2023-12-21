@@ -1,5 +1,7 @@
+/* eslint-disable prettier/prettier */
 import {initializeApp} from 'firebase/app';
 import {getDatabase} from 'firebase/database';
+import {getAuth} from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBjjg1kP4P0AZ4o2MFIWYqSM57xNgAvElQ',
@@ -15,5 +17,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
 
-export { db };
+export { db, auth };

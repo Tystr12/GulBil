@@ -9,6 +9,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import LeaderBoard from './components/LeaderBoard.js';
 import HomeScreen from './components/HomeSceen.js';
 import LoginScreen from './components/LoginScreen.js';
+import CreateAccountScreen from './components/CreateAccountScreen.js';
 import {Button} from 'react-native-elements';
 //import {lightColors} from '@rneui/base';
 
@@ -40,6 +41,14 @@ function App({}) {
         <Stack.Screen
           name="LeaderBoard"
           component={LeaderBoard}
+          options={{
+            headerStyle: {backgroundColor: 'yellow'},
+            headerTintColor: '#000',
+          }}
+        />
+        <Stack.Screen
+          name="CreateAccount"
+          component={CreateAccountScreen}
           options={{
             headerStyle: {backgroundColor: 'yellow'},
             headerTintColor: '#000',

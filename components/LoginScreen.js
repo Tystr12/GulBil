@@ -1,8 +1,10 @@
+/* eslint-disable prettier/prettier */
 import React from 'react';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import {createStackNavigator} from '@react-navigation/stack';
 import {NavigationContainer} from '@react-navigation/native';
+import {getAuth, signInWithEmailAndPassword} from 'firebase/auth';
 import {
   StyleSheet,
   Text,
@@ -36,6 +38,7 @@ const LoginScreen = ({navigation}) => {
     <View style={Styles.container}>
       <Text>{text}</Text>
       <Button title="Home" onPress={() => navigation.navigate('GulBil')} />
+      <Button title="CreateAccount" onPress={() => navigation.navigate('CreateAccount')} />
     </View>
   );
 };
