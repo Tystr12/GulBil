@@ -13,7 +13,7 @@ import {
   collection,
   addDoc,
   updateDoc as updateDocument,
-} from './firebase/index.js';
+} from '../firebase/index.js';
 
 import {doc, getDoc, setDoc} from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons.js';
