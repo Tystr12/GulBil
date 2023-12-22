@@ -15,57 +15,50 @@ import {
 import LeaderBoard from './LeaderBoard.js';
 import {useState, useEffect, useCallback, useMemo} from 'react';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons.js';
-import {
-  app,
-  db,
-  getFirestore,
-  collection,
-  addDoc,
-  updateDoc as updateDocument,
-} from '../firebase/index.js';
 
 import {doc, getDoc, setDoc} from 'firebase/firestore';
+import {onAuthStateChanged} from 'firebase/auth';
+import {auth, db} from '../firebase-config.js';
 //import {lightColors} from '@rneui/base';
 import Style from './Styles.js';
-
-const userMap = new Map();
-userMap.set(false, 'Live');
-userMap.set(true, 'Ty');
 
 const HomeScreen = ({navigation}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [amountOfPresses, setPresses] = useState(0);
-  const [user, setUser] = useState(false);
+  const [user, setUser] = useState(null);
   const [timestamps, setTimestamps] = useState([]);
   const [dates, setDates] = useState([]);
-
-  const changeUser = () => {
-    setUser(prevUser => !prevUser);
-    console.log('Switched User');
-  };
 
   const handleButtonPress = async () => {
     const timestamp = new Date().toISOString();
 
     try {
-      const docRef = doc(db, 'Users', userMap.get(user));
-      const docSnap = await getDoc(docRef);
+      const currentUser = auth.currentUser;
 
-      if (docSnap.exists()) {
-        const bilerArray = docSnap.data().biler || [];
-        const total = docSnap.data().total || 0;
+      if (currentUser) {
+        const userDocRef = doc(db, 'Users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
 
-        const updatedBilerArray = [...bilerArray, timestamp];
-        const updatedData = {
-          biler: updatedBilerArray,
-          total: total + 1,
-        };
+        if (userDocSnap.exists()) {
+          const bilerArray = userDocSnap.data().biler || [];
+          const total = userDocSnap.data().total || 0;
 
-        await setDoc(docRef, updatedData, {merge: true});
-        setTimestamps(updatedBilerArray);
-        setPresses(prevPresses => prevPresses + 1);
-        sortDates(updatedBilerArray); // Sort the timestamps into dates
-        console.log('Timestamp added to the document.');
+          const updatedBilerArray = [...bilerArray, timestamp];
+          const updatedData = {
+            biler: updatedBilerArray,
+            total: total + 1,
+          };
+
+          await setDoc(userDocRef, updatedData, {merge: true});
+          setTimestamps(updatedBilerArray);
+          setPresses(prevPresses => prevPresses + 1);
+          sortDates(updatedBilerArray); // Sort the timestamps into dates
+          console.log('Timestamp added to the user document.');
+        } else {
+          console.log('User document does not exist.');
+        }
+      } else {
+        console.error('User not authenticated.');
       }
     } catch (e) {
       console.error('Error adding timestamp: ', e);
@@ -81,24 +74,45 @@ const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     const getDatabasePresses = async () => {
-      const docRef = doc(db, 'Users', userMap.get(user));
-      const docSnap = await getDoc(docRef);
+      const currentUser = auth.currentUser;
 
-      if (docSnap.exists()) {
-        const p = docSnap.data().total;
-        const t = docSnap.data().biler;
-        setPresses(p);
-        setTimestamps(t);
-        sortDates(t); // Sort the timestamps into dates
+      if (currentUser) {
+        setUser(currentUser);
+
+        // Retrieve or create user document in Cloud Firestore
+        const userDocRef = doc(db, 'Users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+          // User document doesn't exist, create it
+          await setDoc(userDocRef, {
+            // Add any initial user data if needed
+          });
+        }
+
+        // Continue fetching data from Firestore
+        const docRef = doc(db, 'Users', currentUser.uid); // Adjust this to your data model
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const p = docSnap.data().total || 0;
+          const t = docSnap.data().biler || [];
+          setPresses(p);
+          setTimestamps(t);
+          sortDates(t); // Sort the timestamps into dates
+        } else {
+          console.log('docSnap data was empty...');
+        }
+
+        setIsLoading(false); // Data has been fetched, set isLoading to false
       } else {
-        console.log('docSnap data was empty...');
+        setUser(null);
+        setIsLoading(false);
       }
-
-      setIsLoading(false); // Data has been fetched, set isLoading to false
     };
 
     getDatabasePresses();
-  }, [user, sortDates]);
+  }, [sortDates]);
 
   const getPressesFromToday = useCallback(() => {
     const today = new Date();
@@ -128,7 +142,7 @@ const HomeScreen = ({navigation}) => {
     <View style={styles.container}>
       <Text style={styles.text}>
         You are logged in as
-        <Text style={styles.highlight}> {userMap.get(user)}</Text>
+        <Text style={styles.highlight}> {user.email}</Text>
       </Text>
       <TouchableOpacity onPress={handleButtonPress} style={styles.gulBilButton}>
         <Image source={require('../assets/images.jpg')} />
@@ -144,7 +158,9 @@ const HomeScreen = ({navigation}) => {
         Last GulBil: <Text style={styles.highlight}>{getNewestPress()}</Text>
       </Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={changeUser} style={styles.buttonLeft}>
+        <TouchableOpacity
+          onPress={() => console.log('Button pressed')}
+          style={styles.buttonLeft}>
           <Text style={styles.buttonText}>Change User</Text>
         </TouchableOpacity>
         <TouchableOpacity

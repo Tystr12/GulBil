@@ -6,14 +6,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import {
-  app,
-  db,
-  getFirestore,
-  collection,
-  addDoc,
-  updateDoc as updateDocument,
-} from '../firebase/index.js';
+import {auth, db} from '../firebase-config.js';
 
 import {doc, getDoc, setDoc} from 'firebase/firestore';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons.js';
